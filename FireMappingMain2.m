@@ -1,8 +1,9 @@
 mapSize = 20;
 start_display = 10000;
+showPaths = 0;      %show uav paths on map. turn off = 0
 
 duration = 1000;
-simSpeed = 0.02;    %pause between simulation frames. smaller = faster
+simSpeed = 0;    %pause between simulation frames. smaller = faster
 
 depth = 3;
 numAgents = 5;
@@ -73,6 +74,15 @@ for step = 1:duration
         end
     end
     
+    if(~mod(step,fusionInterval))
+        uavEstState = fuseMap(communicationLaplacian, uavEstState, fusionGamma);
+    end
+    
+    for agent = 1:numAgents
+        currentVertex = (uavRows(agent)-1)*mapSize + (uavCols(agent));
+        uavPaths(agent,:) = findBestPath(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap);
+    end
+        
     %%%%%%%%%%%%Borrowed Code%%%%%%%%%%%%%%%%%%%%%%%
     % Only display maps after reaching timestep "start_display". 
     if (step >= start_display)
@@ -98,6 +108,10 @@ for step = 1:duration
                                 uavEstState(mapSize,mapSize)];
                 surf(0:mapSize,0:mapSize,surf_est_UAV); view(0,90); caxis([0 1]);
                 title(['UAV ' num2str(i-1)]); 
+                text(uavCols(i-1)-1.1,uavRows(i-1)-0.2,2,'•');
+                if showPaths
+                    showPath(i-1, depth, mapSize, uavPaths);
+                end
             end 
         end
     
@@ -105,31 +119,18 @@ for step = 1:duration
         subplot(2,3,1);
         hold on
         for t = 1:numAgents
-            text(uavCols(t)-0.70,uavRows(t)-0.5,2,'•');
-            
-%             %show path
-%             path = zeros(depth, 2);
-%             for i = 1:depth
-%                 [row, col] = ind2sub(mapSize, uavPaths(t, i))
-%             end
-%             for i = 1:depth
-%                 text(path(i,1)-0.70,path(i,2)-0.5,2,'*');
-%             end
-%             %end show path
+            text(uavCols(t)-1.1,uavRows(t)-0.2,2,'•');
+            if showPaths
+                showPath(t, depth, mapSize, uavPaths);
+            end
         end
         hold off
-        %pause(simSpeed);
+        pause(simSpeed);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    if(~mod(step,fusionInterval))
-        uavEstState = fuseMap(communicationLaplacian, uavEstState, fusionGamma);
-    end
-    
     for agent = 1:numAgents
-        currentVertex = (uavRows(agent)-1)*mapSize + (uavCols(agent));
-        uavPaths(agent,:) = findBestPath(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap);
-        
+     
         uavRows(agent) = ceil(uavPaths(agent, 1)/mapSize);
         uavCols(agent) = mod(uavPaths(agent, 1)-1, mapSize)+1;
         
