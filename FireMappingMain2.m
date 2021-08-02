@@ -1,6 +1,6 @@
 mapSize = 20;
-start_display = 10000;
-showPaths = 0;      %show uav paths on map. turn off = 0
+start_display = 1;
+showPaths = 1;      %show uav paths on map. turn off = 0
 
 duration = 1000;
 simSpeed = 0;    %pause between simulation frames. smaller = faster
