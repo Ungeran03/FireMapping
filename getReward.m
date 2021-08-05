@@ -6,3 +6,6 @@ function reward = getReward(uncertainty, agent, currentVertex, repulsiveForceCoe
     repulsiveForce = -sum(1./(nonzeros(distances).^repulsiveForceCoeff));
     reward = reward + repulsiveForce;
 end
+
+%consider giving each agent different alpha values
+%add alpha parameter to reward function

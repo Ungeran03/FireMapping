@@ -1,9 +1,9 @@
 mapSize = 20;
-start_display = 10000;
-showPaths = 0;      %show uav paths on map. turn off = 0
+start_display = 1;
+showPaths = 1;      %show uav paths on map. turn off = 0
 
 duration = 1000;
-simSpeed = 0;    %pause between simulation frames. smaller = faster
+simSpeed = .5;    %pause between simulation frames. smaller = faster
 
 depth = 3;
 numAgents = 5;
@@ -134,6 +134,7 @@ for step = 1:duration
     
     %path info gethering code
     for agent = 1:numAgents
+%         if step < 100; continue; end;
         agentPaths(step, :, :) = uavPaths(:, :);
         agentPositions(step, :, :) = [uavRows(:), uavCols(:)];
     end
