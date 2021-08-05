@@ -19,6 +19,7 @@ function updatedState = updateEstState(state, spreadRate)
         end
         neighbors(3) = linearIndex-sideLength;  %left
         neighbors(4) = linearIndex+sideLength;  %right
+        %%the 8-direction calcs are currently deprecated%%
 %         neighbors(5) = neighbors(3)-1;  %up left
 %         neighbors(6) = neighbors(3)+1;  %down left
 %         neighbors(7) = neighbors(4)-1;  %up right

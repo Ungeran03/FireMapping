@@ -1,0 +1,19 @@
+runs = 3;
+fprintf("Initializing workspace.\n");
+FireMappingMain2;
+multiAgentPaths = zeros(runs, duration, numAgents, depth);
+multiAgentPositions = zeros(runs, duration, numAgents, 2);
+fprintf("Inititalization complete. Begining data collection.\n");
+
+tic
+%collect data
+for simStep = 1:runs
+    FireMappingMain2;
+    multiAgentPaths(simStep, :, :, :) = agentPaths;
+    multiAgentPositions(simStep, :, :, :) = agentPositions;
+    fprintf("Run %d of %d complete.\n", simStep, runs);
+end
+fprintf("Data Collection Complete.\n");
+toc
+
+%check information

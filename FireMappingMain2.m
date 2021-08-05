@@ -1,6 +1,6 @@
 mapSize = 20;
-start_display = 1;
-showPaths = 1;      %show uav paths on map. turn off = 0
+start_display = 10000;
+showPaths = 0;      %show uav paths on map. turn off = 0
 
 duration = 1000;
 simSpeed = 0;    %pause between simulation frames. smaller = faster
@@ -49,7 +49,10 @@ colorMap = get_colormap(200);
 
 distanceMap = getDistanceMap(mapSize);
 
-tic
+agentPaths = zeros(duration, numAgents, depth);
+agentPositions = zeros(duration, numAgents, 2);
+
+%tic
 for step = 1:duration
     trueState = spreadFire(trueState, spreadRate);  %spread the fire
     
@@ -127,7 +130,13 @@ for step = 1:duration
         hold off
         pause(simSpeed);
     end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %end borrowed code%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %path info gethering code
+    for agent = 1:numAgents
+        agentPaths(step, :, :) = uavPaths(:, :);
+        agentPositions(step, :, :) = [uavRows(:), uavCols(:)];
+    end
     
     for agent = 1:numAgents
      
@@ -151,11 +160,11 @@ for step = 1:duration
         uavError(i) = sum(sum(squared_err_UAV));
     end
     totalError(step) = sum(uavError) / numAgents;
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %end borrowed code%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end
 
-fprintf('Simulation Complete! :)\n');
+%fprintf('Simulation Complete! :)\n');
 %total_err = total_err/duration;
 %total_err_UAV = total_err_UAVs/duration;
-toc
+%toc
