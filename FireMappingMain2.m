@@ -15,6 +15,7 @@ fusionInterval = 20;
 repulsiveForce = 2;
 repulsiveForceRange = 5;
 fusionGamma = 3/10;
+rewardAlpha = 0.5;
 
 falsePosRate = 0.10;
 falseNegRate = 0.10;
@@ -83,7 +84,7 @@ for step = 1:duration
     
     for agent = 1:numAgents
         currentVertex = (uavRows(agent)-1)*mapSize + (uavCols(agent));
-        uavPaths(agent,:) = findBestPath(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap);
+        uavPaths(agent,:) = findBestPath(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
     end
         
     %%%%%%%%%%%%Borrowed Code%%%%%%%%%%%%%%%%%%%%%%%
