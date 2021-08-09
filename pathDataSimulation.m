@@ -26,6 +26,7 @@ toc
 stepsOnPath = zeros(1,depth);
 pathProbs = zeros(runs, 1+depth*2, 1+depth*2);
 stepProbs = zeros(runs, depth, 1+depth*2, 1+depth*2);
+planProbs = zeros(runs, depth, 1+depth*2, 1+depth*2);
 stepCount = zeros(1, depth);
 for run = 1:runs
    for simStep = 1:duration
@@ -43,7 +44,14 @@ for run = 1:runs
                
                stepProbs(run, pathStep, offsetRow, offsetCol) = stepProbs(run, pathStep, offsetRow, offsetCol) + 1;
                
-               
+
+               [row, col] = ind2sub([mapSize, mapSize], multiAgentPaths(run, simStep, agent, pathStep));
+               rowDirectionalOffset = row-center(2);
+               colDirectionalOffset = col-center(1);
+               offsetCol = (depth+1)+ colDirectionalOffset;
+               offsetRow = (depth+1)+ rowDirectionalOffset;
+               planProbs(run, pathStep, offsetRow, offsetCol) = planProbs(run, pathStep, offsetRow, offsetCol) + 1;
+
                if sub2ind([mapSize, mapSize], agentPosition(2), agentPosition(1)) == multiAgentPaths(run, simStep, agent, pathStep)
                    stepsOnPath(1, pathStep) = stepsOnPath(1, pathStep) + 1;
                end
@@ -60,6 +68,7 @@ pathStepProbs = pathStepProbs.*(numAgents*runs);
 pathStepProbs = ones(1, depth).*(duration*numAgents*runs) - pathStepProbs;
 pathStepProbs = stepsOnPath./pathStepProbs
 
+%probabilities for moving through a position
 finalMap = zeros(1+depth*2, 1+depth*2);
 for i=1:runs
     currentMap = reshape(pathProbs(i,:,:),1+depth*2,1+depth*2);
@@ -72,14 +81,16 @@ finalMap
 figDimRow = ceil(sqrt(1+depth));
 figDimCol = floor(sqrt(1+depth));
 subplot(figDimRow, figDimCol, 1); heatmap(finalMap)
+title("Probability of position in full path");
 
+%probabilities for position after each step in path
+%reduce matrix dimensions by 1
 finalMap = zeros(depth, 1+depth*2, 1+depth*2);
 for i=1:runs
     for j = 1:depth
         currentMap = reshape(stepProbs(i,j,:,:), 1, 1+depth*2, 1+depth*2);
         finalMap(j,:,:) = currentMap+finalMap(j,:,:);
     end
-    title("Probability of position in full path");
 end
 
 for i=1:depth
@@ -90,5 +101,19 @@ for i=1:depth
     title("Probabiliy of position at step "+i);
 end
 
+%probabilities for planned paths
+figure
+finalMap = zeros(depth, 1+depth*2, 1+depth*2);
+for i=1:runs
+    for j = 1:depth
+        currentMap = reshape(planProbs(i,j,:,:), 1, 1+depth*2, 1+depth*2);
+        finalMap(j,:,:) = currentMap+finalMap(j,:,:);
+    end
+end
 
-
+for i=1:depth
+    finalMap(i,:,:) = finalMap(i,:,:)/sum(sum(finalMap(i,:,:)));
+    map = reshape(finalMap(i,:,:), 1+depth*2, 1+depth*2);
+    subplot(figDimRow, figDimCol, i); heatmap(map)
+    title("Probabiliy of planning position at step "+i);
+end
