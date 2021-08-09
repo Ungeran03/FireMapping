@@ -1,4 +1,4 @@
-runs = 5;
+runs = 1;
 fprintf("Initializing workspace.\n");
 tic;
 FireMappingMain2;
@@ -24,26 +24,71 @@ toc
 
 %first, tally how many times the agent stayed on path for 1, 2, or 3 steps.
 stepsOnPath = zeros(1,depth);
+pathProbs = zeros(runs, 1+depth*2, 1+depth*2);
+stepProbs = zeros(runs, depth, 1+depth*2, 1+depth*2);
+stepCount = zeros(1, depth);
 for run = 1:runs
    for simStep = 1:duration
        for agent = 1:numAgents
+           center = multiAgentPositions(run, simStep, agent, :);
            for pathStep = 1:depth
                if simStep + pathStep > duration; continue; end
-               position = multiAgentPositions(run, simStep + pathStep, agent, :);
-               if sub2ind([mapSize, mapSize], position(2), position(1)) == multiAgentPaths(run, simStep, agent, pathStep)
+               
+               agentPosition = multiAgentPositions(run, simStep + pathStep, agent, :);
+               rowDirectionalOffset = agentPosition(2)-center(2);
+               colDirectionalOffset = agentPosition(1)-center(1);
+               offsetCol = (depth+1)+ colDirectionalOffset;
+               offsetRow = (depth+1)+ rowDirectionalOffset;
+               pathProbs(run, offsetRow, offsetCol) = pathProbs(run, offsetRow, offsetCol) + 1;
+               
+               stepProbs(run, pathStep, offsetRow, offsetCol) = stepProbs(run, pathStep, offsetRow, offsetCol) + 1;
+               
+               
+               if sub2ind([mapSize, mapSize], agentPosition(2), agentPosition(1)) == multiAgentPaths(run, simStep, agent, pathStep)
                    stepsOnPath(1, pathStep) = stepsOnPath(1, pathStep) + 1;
                end
            end
        end
    end
+   for i=1:(1+depth*2)^2
+       pathProbs(run, i) = pathProbs(run, i)/((duration-numAgents)*numAgents*depth);
+   end
 end
 stepsOnPath;
-stepProbs = 1:1:depth;
-stepProbs = stepProbs.*(numAgents*runs);
-stepProbs = ones(1, depth).*(duration*numAgents*runs) - stepProbs;
-stepProbs = stepsOnPath./stepProbs
+pathStepProbs = 1:1:depth;
+pathStepProbs = pathStepProbs.*(numAgents*runs);
+pathStepProbs = ones(1, depth).*(duration*numAgents*runs) - pathStepProbs;
+pathStepProbs = stepsOnPath./pathStepProbs
+
+finalMap = zeros(1+depth*2, 1+depth*2);
+for i=1:runs
+    currentMap = reshape(pathProbs(i,:,:),1+depth*2,1+depth*2);
+    finalMap = currentMap+finalMap;
+end
+finalMap = finalMap/runs;
+fprintf("Probability of position relative to start along the entire path:\n");
+finalMap
+
+figDimRow = ceil(sqrt(1+depth));
+figDimCol = floor(sqrt(1+depth));
+subplot(figDimRow, figDimCol, 1); heatmap(finalMap)
+
+finalMap = zeros(depth, 1+depth*2, 1+depth*2);
+for i=1:runs
+    for j = 1:depth
+        currentMap = reshape(stepProbs(i,j,:,:), 1, 1+depth*2, 1+depth*2);
+        finalMap(j,:,:) = currentMap+finalMap(j,:,:);
+    end
+    title("Probability of position in full path");
+end
+
+for i=1:depth
+    finalMap(i,:,:) = finalMap(i,:,:)/sum(sum(finalMap(i,:,:)));
+    fprintf("Probability of position relative to start for step %d in path:\n", i);
+    map = reshape(finalMap(i,:,:), 1+depth*2, 1+depth*2)
+    subplot(figDimRow, figDimCol, 1+i); heatmap(map)
+    title("Probabiliy of position at step "+i);
+end
 
 
 
-%next, tally the likelihood of moving to any individual postion in its
-%range relative to its starting position

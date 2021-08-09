@@ -92,14 +92,15 @@ for step = 1:duration
         % Display rhe true state of the environment with a custom colormap.
         surf_true = [trueState trueState(:,mapSize); trueState(mapSize,:) trueState(mapSize,mapSize)];
         colormap(colorMap);
-        figure(2); 
+        f2 = figure(2); 
         surf(0:mapSize,0:mapSize,surf_true); view(0,90); caxis([0 1]);
         title("True State of Environment");
 
         % Plot centEstState for each UAV on subplot respectively.
         % Create subplot to visualize individual UAV mapping. (MAX = 5 UAVs)
         colormap(colorMap);
-        figure(1);
+        f1 = figure(1);
+        f1.Position = [f2.Position(1)+f2.Position(3)+5, f2.Position(2), f2.Position(3), f2.Position(4)];
         for i = 1:numAgents + 1
             subplot(2,3,i);
             if i == 1
