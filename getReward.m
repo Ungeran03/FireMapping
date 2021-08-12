@@ -4,5 +4,9 @@ function reward = getReward(uncertainty, agent, currentVertex, repulsiveForceCoe
     reward = entropyFunc(uncertainty);
     distances = getDistances(agent, currentVertex, numAgents, mapSize, uavRows, uavCols, distanceMap);
     repulsiveForce = -sum(1./(nonzeros(distances).^repulsiveForceCoeff));
+    z=find(distances == 0);
+    if size(z)>1
+        repulsiveForce = -10000;
+    end
     reward = alpha*reward + (1-alpha)*repulsiveForce;
 end

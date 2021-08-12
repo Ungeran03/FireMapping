@@ -84,7 +84,7 @@ for step = 1:duration
     
     for agent = 1:numAgents
         currentVertex = (uavRows(agent)-1)*mapSize + (uavCols(agent));
-        uavPaths(agent,:) = findBestPath_noBacktrack(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+        uavPaths(agent,:) = findBestPath(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
     end
         
     %%%%%%%%%%%%Borrowed Code%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,4 +1,4 @@
-runs = 1;
+runs = 10;
 fprintf("Initializing workspace.\n");
 tic;
 FireMappingMain2;

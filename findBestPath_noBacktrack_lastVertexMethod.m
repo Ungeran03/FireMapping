@@ -10,17 +10,16 @@ function [rewards, paths] = getPaths(G, currentVertex, depth, estState, agent, r
     rewards = [];
     children = successors(G, currentVertex);
     %remove paths to current vertex
-    H = rmedge(G, children, currentVertex);
-    H = rmedge(H, currentVertex, children);
+    %H = rmedge(G, children, currentVertex);
+    %H = rmedge(H, currentVertex, children);
     for i = 1:length(children)
-        plot(H)
-        [childReward, childPaths] = getPathsHelper(H, children(i), depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+        [childReward, childPaths] = getPathsHelper(G, children(i), depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, currentVertex, rewardAlpha);
         paths = [paths; childPaths];
         rewards = [rewards; childReward];
     end
 end
 
-function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha)
+function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, lastVertex, rewardAlpha)
 %this function recursively performs a depth first search to get all paths
 %from the source to the specified depth, including cycles
         uncertainty = estState(currentVertex);
@@ -38,11 +37,11 @@ function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, ag
     workingPath = [];
     workingReward = [];
     children = successors(G, currentVertex);
-    H = rmedge(G, children, currentVertex);
-    H = rmedge(H, currentVertex, children);
+    %H = rmedge(G, children, currentVertex);
+    %H = rmedge(H, currentVertex, children);
     for i = 1:length(children)
-        plot(H)
-        [childReward, childPaths] = getPathsHelper(H, children(i), depth-1, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+        if children(i) == lastVertex; continue; end
+        [childReward, childPaths] = getPathsHelper(G, children(i), depth-1, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, currentVertex, rewardAlpha);
         workingPath = [workingPath; childPaths];
         workingReward = [workingReward; childReward];
     end
