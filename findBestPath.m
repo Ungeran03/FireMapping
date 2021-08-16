@@ -1,22 +1,22 @@
 function bestPath = findBestPath(pathGraph, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha)
-    [rewards, paths] = getPaths(pathGraph, currentVertex, depth, estState.', agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+    [rewards, paths] = getPaths(pathGraph, currentVertex, depth, estState.', agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha, depth);
     
     [path,bestPath] = max(rewards);
     bestPath = paths(bestPath,:);
 end
 
-function [rewards, paths] = getPaths(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha)
+function [rewards, paths] = getPaths(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha, topDepth)
     paths = [];
     rewards = [];
     children = successors(G, currentVertex);
     for i = 1:length(children)
-        [childReward, childPaths] = getPathsHelper(G, children(i), depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+        [childReward, childPaths] = getPathsHelper(G, children(i), depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha, topDepth);
         paths = [paths; childPaths];
         rewards = [rewards; childReward];
     end
 end
 
-function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha)
+function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha, topDepth)
 %this function recursively performs a depth first search to get all paths
 %from the source to the specified depth, including cycles
         uncertainty = estState(currentVertex);
@@ -25,7 +25,9 @@ function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, ag
 %if depth is zero, return current vertex
     if(depth == 1)
         paths = currentVertex;
-        rewards = currentReward;
+        %rewards = currentReward;
+        %beta tuning parameter?
+        rewards = currentReward + agregate(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
         return;
     end
 %otherwise, pre-concatenate the current vertex to every neighboring path
@@ -35,7 +37,7 @@ function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, ag
     workingReward = [];
     children = successors(G, currentVertex);
     for i = 1:length(children)
-        [childReward, childPaths] = getPathsHelper(G, children(i), depth-1, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+        [childReward, childPaths] = getPathsHelper(G, children(i), depth-1, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha, topDepth);
         workingPath = [workingPath; childPaths];
         workingReward = [workingReward; childReward];
     end
@@ -47,4 +49,6 @@ function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, ag
         paths = [paths; currentVertex workingPath(i,:)];
         rewards = [rewards; currentReward + workingReward(i)];
     end
+    
+    
 end
