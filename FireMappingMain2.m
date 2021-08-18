@@ -15,7 +15,8 @@ fusionInterval = 20;
 repulsiveForce = 2;
 repulsiveForceRange = 5;
 fusionGamma = 3/10;
-rewardAlpha = 0.5;
+%rewardAlpha = 0.5;
+%rewardBeta = 0.5;
 
 falsePosRate = 0.10;
 falseNegRate = 0.10;
@@ -157,16 +158,16 @@ for step = 1:duration
     
     % Calculate Squared Error for each UAV's mapping.
     for i = 1:numAgents
-        totalErrorUAVs = true_state_2 - uavEstState(:,:,i);
-        squared_err_UAV = totalErrorUAVs.^2;
+        error_UAVs = true_state_2 - uavEstState(:,:,i);
+        squared_err_UAV = error_UAVs.^2;
         uavError(i) = sum(sum(squared_err_UAV));
     end
-    totalError(step) = sum(uavError) / numAgents;
-    %end borrowed code%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    totalErrorUAVs(step) = sum(uavError) / numAgents;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end
 
 %fprintf('Simulation Complete! :)\n');
-%total_err = total_err/duration;
-%total_err_UAV = total_err_UAVs/duration;
+totalError = totalError/duration;
+totalErrorUAVs = totalErrorUAVs/duration;
 %toc

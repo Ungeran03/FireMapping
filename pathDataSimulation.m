@@ -96,7 +96,7 @@ end
 for i=1:depth
     finalMap(i,:,:) = finalMap(i,:,:)/sum(sum(finalMap(i,:,:)));
     fprintf("Probability of position relative to start for step %d in path:\n", i);
-    map = reshape(finalMap(i,:,:), 1+depth*2, 1+depth*2)
+    map = reshape(finalMap(i,:,:), 1+depth*2, 1+depth*2);
     subplot(figDimRow, figDimCol, 1+i); heatmap(map)
     title("Probabiliy of position at step "+i);
 end

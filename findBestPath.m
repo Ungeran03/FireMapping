@@ -25,9 +25,9 @@ function [rewards, paths] = getPathsHelper(G, currentVertex, depth, estState, ag
 %if depth is zero, return current vertex
     if(depth == 1)
         paths = currentVertex;
-        %rewards = currentReward;
+        rewards = currentReward;
         %beta tuning parameter?
-        rewards = currentReward + agregate(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
+        %rewards = currentReward + agregate(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
         return;
     end
 %otherwise, pre-concatenate the current vertex to every neighboring path
