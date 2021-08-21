@@ -1,11 +1,11 @@
 mapSize = 20;
-start_display = 10000;
+start_display = 1;
 showPaths = 0;      %show uav paths on map. turn off = 0
 
 duration = 1000;
 simSpeed = 0;    %pause between simulation frames. smaller = faster
 
-depth = 3;
+depth = 4;
 numAgents = 5;
 
 spreadRate = 0.007;
@@ -15,7 +15,7 @@ fusionInterval = 20;
 repulsiveForce = 2;
 repulsiveForceRange = 5;
 fusionGamma = 3/10;
-%rewardAlpha = 0.5;
+rewardAlpha = 0.5;
 %rewardBeta = 0.5;
 
 falsePosRate = 0.10;

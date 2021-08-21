@@ -25,5 +25,5 @@ function reward = agregate(G, currentVertex, depth, estState, agent, repulsiveFo
         uncertainty = estState(children(i));
         reward = reward + getReward(uncertainty, agent, children(i), repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
     end
-    reward = reward/length(children);
+    reward = reward;%/length(children);
 end

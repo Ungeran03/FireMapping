@@ -1,6 +1,6 @@
-alphas = 0:0.01:1;
+alphas = 1;
 outerRuns = length(alphas);
-innerRuns = 100;
+innerRuns = 10;
 
 multi_test_err = zeros(outerRuns, innerRuns,1);
 multi_test_err_UAV = zeros(outerRuns, innerRuns,1);
