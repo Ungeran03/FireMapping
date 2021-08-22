@@ -1,4 +1,15 @@
 function updatedState = updateEstState(state, spreadRate)
+%This function updates an estimated state map with new belief about the
+%   fire spread based on the current estimated state map.
+%
+%Inputs:
+%   state = the current estimated state map
+%   spreadRate = the rate of fire propogation
+%
+%Outputs:
+%   updatedState = a copy of state that has been updated to reflect one step
+%       of fire propogation
+
     numAdjacentLocs = 4;    %the number of locations that are considered adjacent to a square. 4 or 8
     sideLength = length(state);     %the length of a side of the square matrix
     sideLengthSquared = sideLength^2;   %the number of linear indexes in matrix

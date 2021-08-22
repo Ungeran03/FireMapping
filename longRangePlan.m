@@ -1,4 +1,11 @@
 function [zones, reward] = longRangePlan()
+%This function is a stub for the long-range planning portion.  This
+%   function operates creating a band of locations surrounding a square area
+%   with side length = 2*depth + 1.  The band is then split into 8 'zones'
+%   with one in each of the cardinal and ordinal directions.  These zones
+%   are then averaged.  The reward bonus for a given position is the
+%   trigonometrically weigthed average of the closest zones.
+
     distance = 2*depth;     %center of each of the cardinal zones
     zones = zeros(8, 2);    %8 squares
     reward = zeros(8);

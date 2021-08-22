@@ -1,6 +1,6 @@
 function colormap = get_colormap(L) 
 %Returns a colormap used to display the environment with "dark green"
-% indicating low probability and "red" indicating high probability.
+%   indicating low probability and "red" indicating high probability.
     map2 = zeros(L,3); 
     
     for i = 1:50 

@@ -1,4 +1,13 @@
-runs = 100;
+%This simulation collects information regarding path planning over several
+%simulations including the probability agents visit locations relative to
+%their starting point, the probability of planning a location relative to
+%their starting point, and the probability an agent stays on path for each
+%step along its path.
+
+runs = 100; %the number of runs to collect data over
+
+%Initialization is done to collect information on the parameters of the
+%   simulation, such as the number of agents, depth, runtime, etc.
 fprintf("Initializing workspace.\n");
 tic;
 FireMappingMain2;
@@ -22,7 +31,7 @@ toc
 
 %check information
 
-%first, tally how many times the agent stayed on path for 1, 2, or 3 steps.
+%first, tally how many times the agent stayed on path for n steps.
 stepsOnPath = zeros(1,depth);
 pathProbs = zeros(runs, 1+depth*2, 1+depth*2);
 stepProbs = zeros(runs, depth, 1+depth*2, 1+depth*2);
@@ -62,10 +71,12 @@ for run = 1:runs
        pathProbs(run, i) = pathProbs(run, i)/((duration-numAgents)*numAgents*depth);
    end
 end
-stepsOnPath;
+stepsOnPath;    %the total number of steps taken on path at each depth level
 pathStepProbs = 1:1:depth;
 pathStepProbs = pathStepProbs.*(numAgents*runs);
 pathStepProbs = ones(1, depth).*(duration*numAgents*runs) - pathStepProbs;
+
+%probaility the agents stayed on path for each step in the path
 pathStepProbs = stepsOnPath./pathStepProbs
 
 %probabilities for moving through a position
@@ -79,7 +90,7 @@ fprintf("Probability of position relative to start along the entire path:\n");
 finalMap
 
 figDimRow = ceil(sqrt(1+depth));
-figDimCol = floor(sqrt(1+depth));
+figDimCol = floor(sqrt(1+depth));   %hack-y attempt to make heatmap size match depth (it's bad)
 subplot(figDimRow, figDimCol, 1); heatmap(finalMap)
 title("Probability of position in full path");
 
@@ -93,6 +104,7 @@ for i=1:runs
     end
 end
 
+%probability for each position relative to start heatmap
 for i=1:depth
     finalMap(i,:,:) = finalMap(i,:,:)/sum(sum(finalMap(i,:,:)));
     fprintf("Probability of position relative to start for step %d in path:\n", i);
@@ -111,6 +123,7 @@ for i=1:runs
     end
 end
 
+%probability of planning each location heatmap
 for i=1:depth
     finalMap(i,:,:) = finalMap(i,:,:)/sum(sum(finalMap(i,:,:)));
     map = reshape(finalMap(i,:,:), 1+depth*2, 1+depth*2);

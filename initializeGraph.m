@@ -1,4 +1,17 @@
 function graph = initializeGraph(mapSize, initialBelief)
+%This function initializes an unweighted digraph for path planning.  The 
+%   vertecies in the digraph match the linear coordinates of the locations
+%   in the state space.  This method could be made more descriptive through
+%   the use of included edge weights.
+%
+%Inputs: 
+%   mapSize = The length of one edge of the square state space.
+%   initialBelief = a mapSize x mapSize matrix representing the initial
+%       uncertainty of the state space.
+%
+%Outputs:
+%   graph = The completed digraph with edge weigths and conncetions to
+%       adjacent vetecies.
 
     function targets = getTargets(source, n)
     %this function calculates out the target list for a square environment

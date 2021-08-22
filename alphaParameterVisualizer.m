@@ -1,6 +1,9 @@
-alphas = 1;
-outerRuns = length(alphas);
-innerRuns = 10;
+%This script collects data regarding the error of the main simulation at
+%variable alpha values.  Dissable 'rewardAlpha' in the main script.
+
+alphas = 0:0.01:1;     %The alpha values to test
+outerRuns = length(alphas); %The number of alpha values being simulated.
+innerRuns = 10; %The number of simulations per alpha value.
 
 multi_test_err = zeros(outerRuns, innerRuns,1);
 multi_test_err_UAV = zeros(outerRuns, innerRuns,1);

@@ -1,4 +1,6 @@
 function reward = agregate(G, currentVertex, depth, estState, agent, repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha)
+%This function averages the value in a diamond shaped area around a
+%   selected vertex.  This is used for mid-range planning.
     children = successors(G, currentVertex);
     innerChildren = [];
     
@@ -15,7 +17,8 @@ function reward = agregate(G, currentVertex, depth, estState, agent, repulsiveFo
     innerChildren = [innerChildren children'];
     
     %trim out duplicate children (corners duplicate) 
-    %**consider removal for weighting**
+    %**consider removal for weighting** i.e. if the position shows up more
+    %   time it become more valuable in the average.
     children = unique(innerChildren(innerChildren~=0));
     
     %sum reward for every child and divide by number of children in list to
@@ -25,5 +28,5 @@ function reward = agregate(G, currentVertex, depth, estState, agent, repulsiveFo
         uncertainty = estState(children(i));
         reward = reward + getReward(uncertainty, agent, children(i), repulsiveForceCoeff, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
     end
-    reward = reward;%/length(children);
+    reward = reward/length(children); %reward as either sum or average.
 end

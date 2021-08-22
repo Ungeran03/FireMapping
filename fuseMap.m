@@ -1,4 +1,15 @@
 function uavBeliefs = fuseMap(connectedAgents, uavBeliefs, gamma)
+%This function fuses maps between connected agents.
+%
+%Inputs: 
+%   connectedAgents = The communication Laplacian matrix.  (numAgent x
+%       numAgent matrix)
+%   uavBeliefs = The belief maps for all agents. (numAgents x mapSize x
+%       mapSize matrix)
+%   gamma = The belief fusion gamma parameter.
+%
+%Outputs:
+%   uavBeliefs = The updated agent beliefs after fusion.
 
     %for each agent
     for agent = 1:size(connectedAgents, 2)

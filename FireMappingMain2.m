@@ -1,64 +1,76 @@
-mapSize = 20;
-start_display = 1;
-showPaths = 0;      %show uav paths on map. turn off = 0
+mapSize = 20;       %The length of one edge of the square state space.
+start_display = 1000;  %The simulation step to begin displaying.  Choose a value > duration to never display.
+showPaths = 0;      %show uav paths on map. turn off = 0, turn on = 1
 
-duration = 1000;
+duration = 1000;    %The number of time steps in the simulation.
 simSpeed = 0;    %pause between simulation frames. smaller = faster
 
-depth = 4;
-numAgents = 5;
+depth = 3;      %The depth to search to for path planning.
+numAgents = 5;  %The number of agents in the state space.
 
-spreadRate = 0.007;
-burnOutRate = 0;
-fusionInterval = 20;
+spreadRate = 0.007; %The fire spread rate.  Larger numbers = faster spread.
+burnOutRate = 0;    %The rate the fire burns out.  Stub.
+fusionInterval = 20;    %The agents will fuse maps every fusionInterval time steps.
 
-repulsiveForce = 2;
-repulsiveForceRange = 5;
-fusionGamma = 3/10;
-rewardAlpha = 0.5;
-%rewardBeta = 0.5;
+repulsiveForce = 2; %The repulsive force factor.
+repulsiveForceRange = 5;    %The drop off range for the repulsive force.
+fusionGamma = 3/10;     %The gamma parameter for belief fusion.
+rewardAlpha = 0.5;      %The alpha weigthing parameter for the reward function.
+%rewardBeta = 0.5;      %The beta weigthing parameter for long and mid
+                        %   range palnning. Stub.
 
-falsePosRate = 0.10;
-falseNegRate = 0.10;
-truePosRate = 1-falsePosRate;
-trueNegRate = 1-falseNegRate;
+falsePosRate = 0.10;    %The percent of false measurements that register positive.
+falseNegRate = 0.10;    %The percent of positive measurements that register false.
+truePosRate = 1-falsePosRate;   %The percent of positive measurements that register positive.
+trueNegRate = 1-falseNegRate;   %The percent of false measurements that register false.
 
 communicationLaplacian = [2 -1 0 0 -1;
                           -1 2 -1 0 0;
                           0 -1 2 -1 0;
                           0 0 -1 2 -1; 
-                          -1 0 0 -1 2];
+                          -1 0 0 -1 2];     %The Laplacian describing which agents can communicate.
 
-centEstState = 0.5*ones(mapSize);
-uavEstState = 0.5*ones(mapSize, mapSize, numAgents);
-trueState = zeros(mapSize);
+centEstState = 0.5*ones(mapSize);       %The estimated state if all agents could communicate.
+uavEstState = 0.5*ones(mapSize, mapSize, numAgents);    %The estimated state map for all agents.
+trueState = zeros(mapSize);     %The actual state space (locations are on fire or not)
 
-x = randi(mapSize);
+%Throw a match at a random spot on the map.
+x = randi(mapSize); 
 y = randi(mapSize);
 trueState(y, x) = 1;
 
-
+%Randomize where the agents start.
 uavRows = randperm(mapSize,numAgents);
 uavCols = randperm(mapSize,numAgents);
 uavPaths = zeros(numAgents, depth);
 
+%Initialize error data gathering metrics.
 totalError = zeros(duration, 1);
 totalErrorUAVs = zeros(duration, 1);
 uavError = zeros(numAgents, 1);
 
+%Create a digraph of connections between locations in state space.
 pathGraph = initializeGraph(mapSize, centEstState);
+
+%Set the color map for plotting uncertainty.
 colorMap = get_colormap(200);
 
+%Initialize an adjacency matric (graph) with edge weigths equal to the
+%   distances between all locations in the state space.
 distanceMap = getDistanceMap(mapSize);
 
+%Initialize path data gathering metrics.
 agentPaths = zeros(duration, numAgents, depth);
 agentPositions = zeros(duration, numAgents, 2);
 
 %tic
+%Main loop
 for step = 1:duration
+    %Spread the fire.
     trueState = spreadFire(trueState, spreadRate);  %spread the fire
     
-    %update centralized estimated state based on where the fire is estimated to be
+    %update centralized estimated state based on where the fire is
+    %   estimated to be.
     centEstState = updateEstState(centEstState, spreadRate);    
     
     %update the UAV's estimated states
@@ -66,6 +78,7 @@ for step = 1:duration
         uavEstState(:,:,i) = updateEstState(uavEstState(:,:,i),spreadRate);
     end
     
+    %for each agent
     for agent = 1:numAgents
         %take a measurement
         [centEstState, uavEstState(:,:,agent), measurement] = takeMeasurement(trueState, centEstState, uavEstState(:,:,agent), uavRows(agent), uavCols(agent), falsePosRate, truePosRate, falseNegRate, trueNegRate);
@@ -79,11 +92,14 @@ for step = 1:duration
         end
     end
     
+    %If at fusion interval, perform fusion
     if(~mod(step,fusionInterval))
         uavEstState = fuseMap(communicationLaplacian, uavEstState, fusionGamma);
     end
     
+    %Plan a path for each agent
     for agent = 1:numAgents
+        %convert 2D agent coordinate to linear for use with pathGraph
         currentVertex = (uavRows(agent)-1)*mapSize + (uavCols(agent));
         uavPaths(agent,:) = findBestPath(pathGraph, currentVertex, depth, uavEstState(:,:,agent), agent, repulsiveForce, numAgents, mapSize, uavRows, uavCols, distanceMap, rewardAlpha);
     end
@@ -141,11 +157,10 @@ for step = 1:duration
         agentPositions(step, :, :) = [uavRows(:), uavCols(:)];
     end
     
+    %move each agent to the first position in their planned path
     for agent = 1:numAgents
-     
         uavRows(agent) = ceil(uavPaths(agent, 1)/mapSize);
         uavCols(agent) = mod(uavPaths(agent, 1)-1, mapSize)+1;
-        
     end
     
     %%%%%%%%%%%%Borrowed Code%%%%%%%%%%%%%%%%%%%%%%%
