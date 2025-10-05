@@ -1,6 +1,6 @@
 mapSize = 20;       %The length of one edge of the square state space.
 start_display = 1000;  %The simulation step to begin displaying.  Choose a value > duration to never display.
-showPaths = 0;      %show uav paths on map. turn off = 0, turn on = 1
+showPaths = 1;      %show uav paths on map. turn off = 0, turn on = 1
 
 duration = 1000;    %The number of time steps in the simulation.
 simSpeed = 0;    %pause between simulation frames. smaller = faster
