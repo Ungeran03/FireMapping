@@ -1,8 +1,11 @@
 function distances = getDistances(agent, currentVertex, numAgents, mapSize, uavRows, uavCols, distanceMap)
 %This function returns the distances from one agent to all of the other
 %agents in the state space.
-%
+
+% Das ist ein Test ob es funktioniert
 %Inputs:
+
+
 %   agent = The active agent.  Included so the distance to this agent is
 %       not calculated.
 %   currentVertex = The location in the state space in linear coordinates
